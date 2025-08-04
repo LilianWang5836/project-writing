@@ -1,11 +1,18 @@
 {
   "version": 3,
-  "builds": [{
-    "src": "api/generate.js",
-    "use": "@vercel/node"
-  }],
-  "routes": [{
-    "src": "/api/(.*)",
-    "dest": "/api/generate"
-  }]
+  "builds": [
+    {
+      "src": "api/generate.js",
+      "use": "@vercel/node",
+      "config": { "runtime": "nodejs18.x" }
+    },
+    {
+      "src": "writing.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/generate" },
+    { "src": "/", "dest": "/writing.html" }
+  ]
 }
