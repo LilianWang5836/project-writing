@@ -5,35 +5,99 @@
   <title>IELTS Writing Assistant</title>
   <style>
     body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; }
-    textarea { width: 100%; padding: 10px; margin-bottom: 10px; }
-    button { padding: 10px 15px; background: #0066ff; color: white; border: none; cursor: pointer; }
-    pre { white-space: pre-wrap; background: #f5f5f5; padding: 15px; border-radius: 5px; }
+    textarea { 
+      width: 100%; 
+      padding: 10px; 
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 100px;
+    }
+    button { 
+      padding: 10px 15px; 
+      background: #0066ff; 
+      color: white; 
+      border: none; 
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0052cc;
+    }
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    pre { 
+      white-space: pre-wrap; 
+      background: #f5f5f5; 
+      padding: 15px; 
+      border-radius: 5px;
+      min-height: 100px;
+      border: 1px solid #eee;
+    }
+    .error {
+      color: #d32f2f;
+    }
   </style>
 </head>
 <body>
   <h1>IELTS Writing Assistant</h1>
-  <textarea id="question" rows="5" placeholder="Enter your IELTS writing topic..."></textarea><br>
-  <button onclick="callGemini()">Generate Outline</button>
+  <textarea id="question" rows="5" placeholder="Enter your IELTS writing topic (e.g., Some people think governments should fund arts, others disagree. Discuss both views.)"></textarea><br>
+  <button id="submitBtn" onclick="callGemini()">Generate Outline</button>
 
   <h3>Result:</h3>
   <pre id="result">AI response will appear here...</pre>
 
   <script>
+    const submitBtn = document.getElementById("submitBtn");
+    const resultEl = document.getElementById("result");
+    
     async function callGemini() {
-      const question = document.getElementById("question").value;
-      document.getElementById("result").innerText = "Loading...";
+      const question = document.getElementById("question").value.trim();
+      
+      if (!question) {
+        showError("Please enter a writing topic");
+        return;
+      }
+      
+      // UI状态更新
+      submitBtn.disabled = true;
+      resultEl.innerHTML = "Generating... <span class='loading'></span>";
       
       try {
         const response = await fetch("/api/generate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ question })
         });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        document.getElementById("result").innerText = data.output || "Error: Empty response";
+        
+        if (data.error) {
+          showError(data.error);
+        } else {
+          resultEl.innerHTML = data.output 
+            ? data.output.replace(/\n/g, "<br>") 
+            : "No content generated";
+        }
       } catch (e) {
-        document.getElementById("result").innerText = `Error: ${e.message}`;
+        showError(e.message);
+        console.error("API Error:", e);
+      } finally {
+        submitBtn.disabled = false;
       }
+    }
+    
+    function showError(message) {
+      resultEl.innerHTML = `<span class="error">Error: ${message}</span>`;
     }
   </script>
 </body>
