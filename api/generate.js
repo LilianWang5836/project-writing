@@ -31,3 +31,8 @@ export default async function handler(req, res) {
     res.status(500).json({ error: e.message });
   }
 }
+
+module.exports = (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.status(200).json({ output: "API 工作正常！" });
+}
