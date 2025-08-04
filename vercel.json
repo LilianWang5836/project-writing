@@ -4,26 +4,10 @@
     {
       "src": "api/generate.js",
       "use": "@vercel/node",
-      "config": {
-        "runtime": "nodejs18.x"
-      }
-    },
-    {
-      "src": "writing.html",
-      "use": "@vercel/static"
+      "config": { "runtime": "nodejs18.x" }
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/generate"
-    },
-    {
-      "src": "/",
-      "dest": "/writing.html",
-      "headers": {
-        "Cache-Control": "public, max-age=3600"
-      }
-    }
+    { "src": "/api/(.*)", "dest": "/api/generate" }
   ]
 }
